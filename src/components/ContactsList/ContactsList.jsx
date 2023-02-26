@@ -1,38 +1,45 @@
-import { List, ListItem } from './ContactsList.styled';
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteContact } from 'redux/Operations';
+import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteContact } from '../../redux/contacts/operations';
+import {
+  ContactList,
+  ContactItem,
+  ContactName,
+  ContactButton,
+  ContactNumber,
+} from './ContactsList.styled';
+import { selectVisibleContacts } from '../../redux/contacts/selectors';
 
-export const ContactList = () => {
+export default function ListForm() {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.items);
-  const filter = useSelector(state => state.filter);
 
-  const getVisibleContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
-
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
-
-  const deleteContactById = contactId => {
-    dispatch(deleteContact(contactId));
-  };
-
-  const visibleContacts = getVisibleContacts();
+  const visibleContacts = useSelector(selectVisibleContacts);
 
   return (
-    <List>
-      {visibleContacts.map(({ id, name, number }) => {
-        return (
-          <ListItem key={id}>
-            {name}: {number}
-            <button type="button" onClick={() => deleteContactById(id)}>
-              Delete
-            </button>
-          </ListItem>
-        );
-      })}
-    </List>
+    <ContactList>
+      {visibleContacts.map(({ id, name, number }) => (
+        <ContactItem key={name}>
+          <ContactName>
+            {name}: <ContactNumber>{number}</ContactNumber>
+          </ContactName>
+          <ContactButton
+            type="button"
+            onClick={() => dispatch(deleteContact(id))}
+          >
+            Delete
+          </ContactButton>
+        </ContactItem>
+      ))}
+    </ContactList>
   );
+}
+
+ListForm.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    })
+  ),
 };
