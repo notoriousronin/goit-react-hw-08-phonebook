@@ -1,52 +1,99 @@
-import { useDispatch } from 'react-redux';
-import { register } from 'redux/auth/operations';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { signup } from 'redux/auth/authApi';
+import { getIsLoadingLogin } from 'redux/auth/authSelectors';
 import {
-  Form,
-  FormLabel,
-  FormInput,
-  FormButton,
-} from './RegisterForm.styled.jsx';
-import { Container } from '../App/App.styled';
+  TextField,
+  Button,
+  Stack,
+  Container,
+  CircularProgress,
+} from '@mui/material';
 
 export const RegisterForm = () => {
   const dispatch = useDispatch();
+  const loading = useSelector(getIsLoadingLogin);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleChange = ({ target: { name, value } }) => {
+    switch (name) {
+      case 'name':
+        return setName(value);
+      case 'email':
+        return setEmail(value);
+      case 'password':
+        return setPassword(value);
+      default:
+        return;
+    }
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
-    const form = e.currentTarget;
-    dispatch(
-      register({
-        name: form.elements.name.value,
-        email: form.elements.email.value,
-        password: form.elements.password.value,
-      })
-    );
-    form.reset();
+    dispatch(signup({ name, email, password }));
+    setName('');
+    setEmail('');
+    setPassword('');
   };
 
   return (
-    <Container>
-      <Form onSubmit={handleSubmit} autoComplete="off">
-        <FormLabel>
-          <FormInput
-            type="text"
+    <Container maxWidth="xs">
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={2} marginTop={5}>
+          <TextField
+            label="Name"
             name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            placeholder="🙍‍♂️ Name"
+            value={name}
+            type="text"
+            onChange={handleChange}
+            required
+            variant="standard"
+            size="small"
           />
-        </FormLabel>
-        <FormLabel>
-          <FormInput type="email" name="email" placeholder="📧 Email" />
-        </FormLabel>
-        <FormLabel>
-          <FormInput
-            type="password"
+          <TextField
+            label="Email"
+            name="email"
+            value={email}
+            type="email"
+            onChange={handleChange}
+            required
+            variant="standard"
+            size="small"
+          />
+          <TextField
+            label="Password"
             name="password"
-            placeholder="🔐 Password"
+            value={password}
+            type="password"
+            onChange={handleChange}
+            required
+            variant="standard"
+            size="small"
           />
-        </FormLabel>
-        <FormButton type="submit">Register</FormButton>
-      </Form>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Button
+              variant="contained"
+              type="submit"
+              style={{
+                minWidth: '150px',
+              }}
+            >
+              {!loading ? (
+                'Register'
+              ) : (
+                <CircularProgress size={28} color="info" />
+              )}
+            </Button>
+          </div>
+        </Stack>
+      </form>
     </Container>
   );
 };

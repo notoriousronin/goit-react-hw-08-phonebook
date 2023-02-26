@@ -1,34 +1,30 @@
-import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectFilter } from '../../redux/contacts/selectors';
-import { setFilter } from '../../redux/contacts/filterSlice';
-import { FilterLabel, FilterInput } from './Filter.styled';
+import { getContactsFilter } from 'redux/contacts/contactsSelectors';
+import { setFilter } from 'redux/filter/filterSlice';
+import { TextField } from '@mui/material';
+import { FilterThumb } from './Filter.Styled';
 
-export default function Filter() {
-  const filter = useSelector(selectFilter);
+export const Filter = () => {
+  const filterName = useSelector(getContactsFilter);
   const dispatch = useDispatch();
 
   const changeFilter = e => {
-    dispatch(setFilter(e.currentTarget.value));
+    let searchName = e.target.value;
+    dispatch(setFilter(searchName.toLowerCase()));
   };
 
   return (
-    <FilterLabel>
-      <FilterInput
+    <FilterThumb>
+      <TextField
+        label="Search"
         type="text"
-        value={filter}
+        value={filterName}
         onChange={changeFilter}
-        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-        title="Name may contain only letters, apostrophe, dash and spaces. For
-      example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-        required
-        placeholder="🔍 Find contacts by name"
+        placeholder="Name..."
+        variant="standard"
+        size="small"
+        fullWidth
       />
-    </FilterLabel>
+    </FilterThumb>
   );
-}
-
-Filter.prototype = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
 };
